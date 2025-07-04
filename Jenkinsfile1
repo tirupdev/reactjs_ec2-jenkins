@@ -1,10 +1,14 @@
 pipeline {
   agent any
 
+  tools {
+    nodejs 'NodeJS' // Make sure 'NodeJS' is configured in Jenkins global tool configuration
+  }
+
   stages {
     stage('Checkout Code') {
       steps {
-        git branch : 'main', url: 'https://github.com/tirupdev/reactjs_ec2-jenkins.git'
+        git branch: 'main', url: 'https://github.com/tirupdev/reactjs_ec2-jenkins.git'
       }
     }
     stage('Install dependencies') {
@@ -16,6 +20,16 @@ pipeline {
     stage('Build React App') {
       steps {
         sh 'npm run build'
+      }
+    }
+    stage('Deploy') {
+      steps {
+        sshagent(['tirup_nginx']) {
+          sh '''
+            scp -o StrictHostKeyChecking=no -r build/* ubuntu@98.130.85.211:/tmp/
+            ssh -o StrictHostKeyChecking=no ubuntu@98.130.85.211 'sudo cp -r /tmp/* /var/www/html/'
+          '''
+        }
       }
     }
   }
