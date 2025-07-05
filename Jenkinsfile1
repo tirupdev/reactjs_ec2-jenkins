@@ -23,9 +23,9 @@ pipeline {
     stage('Deploy to Nginx EC2') {
       steps {
         sh '''
-          scp -i /home/jenkins/ec2-pem/3july.pem -o StrictHostKeyChecking=no -r build/* ubuntu@98.130.85.211:/tmp/
+          scp -i /var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no -r build/* ubuntu@98.130.85.211:/tmp/
 
-          ssh -i /home/jenkins/ec2-pem/3july.pem -o StrictHostKeyChecking=no ubuntu@98.130.85.211 << EOF
+          ssh -i ~/var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no ubuntu@98.130.85.211 << EOF
             sudo rm -rf /var/www/html/*
             sudo cp -r /tmp/* /var/www/html/
           EOF
