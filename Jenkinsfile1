@@ -8,7 +8,7 @@ pipeline {
       }
     }
 
-    stage('Install dependencies') {
+    stage('Install Dependencies') {
       steps {
         sh 'npm install'
       }
@@ -20,15 +20,11 @@ pipeline {
       }
     }
 
-    stage('Deploy to Nginx EC2') {
+    stage('Deploy to EC2') {
       steps {
         sh '''
-          scp -i /var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no -r build/* ubuntu@98.130.85.211:/tmp/
-
-          ssh -i ~/var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no ubuntu@98.130.85.211 << EOF
-            sudo rm -rf /var/www/html/*
-            sudo cp -r /tmp/* /var/www/html/
-          EOF
+          scp -i /var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no -r build/asset-manifest.json build/index.html build/static ubuntu@98.130.85.211:/tmp/
+          ssh -i /var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no ubuntu@98.130.85.211 'sudo cp -r /tmp/* /var/www/html/'
         '''
       }
     }
