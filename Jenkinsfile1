@@ -22,16 +22,14 @@ pipeline {
 
     stage('Deploy to Nginx EC2') {
       steps {
-        sshagent(['tirup_nginx']) {
-          sh '''
-            echo "📤 Uploading build to EC2..."
-            ssh -o StrictHostKeyChecking=no ubuntu@98.130.85.211 'sudo rm -rf /tmp/reactbuild && mkdir -p /tmp/reactbuild'
-            scp -o StrictHostKeyChecking=no -r build/* ubuntu@98.130.85.211:/tmp/reactbuild/
-            
-            echo "🚀 Deploying to /var/www/html..." 
-            ssh -o StrictHostKeyChecking=no ubuntu@98.130.85.211 'sudo rm -rf /var/www/html/* && sudo cp -r /tmp/reactbuild/* /var/www/html/'
-          '''
-        }
+        sh '''
+          scp -i /home/jenkins/ec2-pem/3july.pem -o StrictHostKeyChecking=no -r build/* ubuntu@98.130.85.211:/tmp/
+
+          ssh -i /home/jenkins/ec2-pem/3july.pem -o StrictHostKeyChecking=no ubuntu@98.130.85.211 << EOF
+            sudo rm -rf /var/www/html/*
+            sudo cp -r /tmp/* /var/www/html/
+          EOF
+        '''
       }
     }
   }
