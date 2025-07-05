@@ -1,0 +1,23 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Checkout Code') {
+      steps {
+        git branch: 'main', url: 'https://github.com/tirupdev/reactjs_ec2-jenkins.git'
+      }
+    }
+
+    stage('Install dependencies') {
+      steps {
+        sh 'npm install'
+      }
+    }
+
+    stage('Build React App') {
+      steps {
+        sh 'npm run build'
+      }
+    }
+  }
+}
