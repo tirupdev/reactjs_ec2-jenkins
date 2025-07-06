@@ -20,25 +20,23 @@ pipeline {
       }
     }
 
-    stage('Copy to EC2') {
+    stage('Build & Run on EC2') {
       steps {
         sh '''
-        scp -i /var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no Dockerfile ubuntu@98.130.85.211:/home/ubuntu/
-        scp -i /var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no -r build/ ubuntu@98.130.85.211:/home/ubuntu/
-        '''
-      }
-    }
+          ssh -i /var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no ubuntu@98.130.85.211 <<EOF
+            cd /home/ubuntu
 
-    stage('Build & Run Docker on EC2') {
-      steps {
-        sh '''
-        ssh -i /var/lib/jenkins/.ssh/3july.pem -o StrictHostKeyChecking=no ubuntu@98.130.85.211 << 'ENDSSH'
-          cd /home/ubuntu
-          docker build -t my-react-nginx -f Dockerfile .
-          docker stop my-react-app || true
-          docker rm my-react-app || true
-          docker run -d --name my-react-app -p 8086:80 my-react-nginx
-        ENDSSH
+            docker build -t nginx-i- <<EOD
+            FROM nginx:latest
+            COPY build/ /usr/share/nginx/html/
+            EXPOSE 80
+            CMD ["nginx", "-g", "daemon off;"]
+            EOD
+
+            docker stop react-c || true
+            docker rm react-c || true
+            docker run -d --name react-c -p 8086:80 nginx-i
+          EOF
         '''
       }
     }
